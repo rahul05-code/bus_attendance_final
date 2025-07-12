@@ -20,7 +20,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-const apiUrl = 'YOUR_DEPLOYED_SCRIPT_URL';
+const apiUrl =
+    'https://script.google.com/macros/s/AKfycbz3pz9IflpUXjI1LuDePfpKYbwUt7MMblUH-6GqQBKubjUg2z6zzJF_wn0FvERslhmtQQ/exec';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
