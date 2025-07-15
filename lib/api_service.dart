@@ -5,8 +5,10 @@ class ApiService {
   static const String endpoint =
       "https://script.google.com/macros/s/AKfycbxA87twRX3s45sLzmns7HcOFf0ZxTtR0DWRpDHbjJLIqLGNYvX1O8H7YbRDQueJ9IA8/exec";
 
-  static Future<Map<String, dynamic>> register(String name, String phone,
-      String city, String bus, String stop, String pass) async {
+ static Future<Map<String, dynamic>> register(
+  String name, String phone, String city, String bus, String stop, String pass) async {
+
+  try {
     final res = await http.post(
       Uri.parse(endpoint),
       headers: {"Content-Type": "application/json"},
@@ -21,16 +23,16 @@ class ApiService {
       }),
     );
 
-    print("Response code: ${res.statusCode}");
-    print("Raw response body: ${res.body}");
+    print("Response status: ${res.statusCode}");
+    print("Raw response: ${res.body}");
 
-    try {
-      return jsonDecode(res.body);
-    } catch (e) {
-      print("Error decoding JSON: ${res.body}");
-      return {"status": "error", "message": "Invalid server response"};
-    }
+    return jsonDecode(res.body);
+  } catch (e) {
+    print("Error decoding JSON: $e");
+    return {"status": "error", "message": "Invalid server response"};
   }
+}
+
 
   static Future<Map<String, dynamic>> login(String phone, String pass) async {
     final res = await http.post(
