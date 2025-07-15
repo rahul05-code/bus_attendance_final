@@ -1,19 +1,18 @@
 name: bus_attendance_app
-description: A Flutter app for bus attendance using QR and Google Sheets
+description: A Flutter app for bus attendance using mobile_scanner and Google Sheets backend.
+publish_to: 'none'
+
+version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.1
-  mobile_scanner: ^7.0.1
-  flutter_secure_storage: ^8.0.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  mobile_scanner: ^3.5.0
+  http: ^0.13.6
+  shared_preferences: ^2.2.2
 
 flutter:
   uses-material-design: true
