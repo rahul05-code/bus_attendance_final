@@ -29,7 +29,8 @@ class _HomePageState extends State<HomePage> {
       }
 
       final uid = user.uid;
-      final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      final doc =
+          await FirebaseFirestore.instance.collection("users").doc(uid).get();
 
       if (doc.exists) {
         final data = doc.data()!;
