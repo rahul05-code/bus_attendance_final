@@ -5,16 +5,18 @@ import 'package:flutter/material.dart';
 class ApiService {
   // ✅ Register User
   static Future<Map<String, dynamic>> registerUser(
-      String name,
-      String phone,
-      String city,
-      String bus,
-      String stop,
-      String password) async {
+    String name,
+    String email,
+    String phone,
+    String city,
+    String bus,
+    String stop,
+    String password,
+  ) async {
     try {
-      UserCredential userCred = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-        email: '$phone@app.com',
+      UserCredential userCred =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
         password: password,
       );
 
@@ -23,6 +25,7 @@ class ApiService {
           .doc(userCred.user!.uid)
           .set({
         "name": name,
+        "email": email,
         "phone": phone,
         "city": city,
         "bus": bus,
@@ -37,10 +40,12 @@ class ApiService {
 
   // ✅ Login User
   static Future<Map<String, dynamic>> loginUser(
-      String phone, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: '$phone@app.com',
+        email: email,
         password: password,
       );
       return {"status": "success"};

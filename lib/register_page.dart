@@ -8,6 +8,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final nameCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final passCtrl = TextEditingController();
   final stopCtrl = TextEditingController();
@@ -34,6 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (nameCtrl.text.isEmpty ||
+        emailCtrl.text.isEmpty ||
         phoneCtrl.text.isEmpty ||
         stopCtrl.text.isEmpty ||
         passCtrl.text.isEmpty) {
@@ -52,6 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final res = await ApiService.registerUser(
       nameCtrl.text.trim(),
+      emailCtrl.text.trim(),
       phoneCtrl.text.trim(),
       city!,
       bus!,
@@ -68,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
         .showSnackBar(SnackBar(content: Text(message)));
 
     if (res["status"] == "success") {
-      Navigator.pop(context); // return to login or previous screen
+      Navigator.pop(context); // Return to login screen
     }
   }
 
@@ -82,6 +85,10 @@ class _RegisterPageState extends State<RegisterPage> {
           TextField(
               controller: nameCtrl,
               decoration: InputDecoration(labelText: "Name")),
+          TextField(
+              controller: emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(labelText: "Email")),
           TextField(
               controller: phoneCtrl,
               keyboardType: TextInputType.phone,

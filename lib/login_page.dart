@@ -7,14 +7,14 @@ import 'home_page.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatelessWidget {
-  final phoneCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
 
   void login(BuildContext context) async {
-    final phone = phoneCtrl.text.trim();
+    final email = emailCtrl.text.trim();
     final pass = passCtrl.text.trim();
 
-    if (phone.isEmpty || pass.isEmpty) {
+    if (email.isEmpty || pass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please fill all fields")),
       );
@@ -22,9 +22,9 @@ class LoginPage extends StatelessWidget {
     }
 
     try {
-      // Login with Firebase Auth
+      // Login with Firebase Auth using email
       UserCredential userCred = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: "$phone@app.com", password: pass);
+          .signInWithEmailAndPassword(email: email, password: pass);
 
       // Fetch user details from Firestore
       final doc = await FirebaseFirestore.instance
@@ -61,9 +61,9 @@ class LoginPage extends StatelessWidget {
         padding: EdgeInsets.all(20),
         child: Column(children: [
           TextField(
-            controller: phoneCtrl,
-            decoration: InputDecoration(labelText: "Phone"),
-            keyboardType: TextInputType.phone,
+            controller: emailCtrl,
+            decoration: InputDecoration(labelText: "Email"),
+            keyboardType: TextInputType.emailAddress,
           ),
           TextField(
             controller: passCtrl,
