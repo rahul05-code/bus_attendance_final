@@ -5,33 +5,40 @@ class ApiService {
   static const String endpoint =
       "https://script.google.com/macros/s/AKfycbxA87twRX3s45sLzmns7HcOFf0ZxTtR0DWRpDHbjJLIqLGNYvX1O8H7YbRDQueJ9IA8/exec";
 
-  static Future<Map<String, dynamic>> register(String name, String phone,
-      String city, String bus, String stop, String pass) async {
+static Future<Map<String, dynamic>> register(String name, String phone,
+    String city, String bus, String stop, String pass) async {
+  try {
+    final res = await http.post(
+      Uri.parse(endpoint),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "action": "register",
+        "name": name,
+        "phone": phone,
+        "city": city,
+        "bus": bus,
+        "stop": stop,  // Changed from "D stop" to "stop"
+        "password": pass,
+      }),
+    );
+
+    print("Response status: ${res.statusCode}");
+    print("Response body: ${res.body}");
+
+    if (res.statusCode != 200) {
+      return {"status": "error", "message": "Server returned ${res.statusCode}"};
+    }
+
     try {
-      final res = await http.post(
-        Uri.parse(endpoint),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          "action": "register",
-          "name": name,
-          "phone": phone,
-          "city": city,
-          "bus": bus,
-          "stop": stop,
-          "password": pass,
-        }),
-      );
-
-      print("Response status: ${res.statusCode}");
-      print("Response headers: ${res.headers}");
-      print("Raw response body: ${res.body}");
-
       return jsonDecode(res.body);
     } catch (e) {
-      print("Exception caught: $e");
-      return {"status": "error", "message": "Invalid server response"};
+      return {"status": "error", "message": "Invalid JSON: ${res.body}"};
     }
+  } catch (e) {
+    print("Exception caught: $e");
+    return {"status": "error", "message": "Network error: $e"};
   }
+}
 
   static Future<Map<String, dynamic>> login(String phone, String pass) async {
     final res = await http.post(
