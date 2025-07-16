@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "702515887588",
+    "project_id": "bus-system-641e0",
+    "storage_bucket": "bus-system-641e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702515887588:android:584d086ee4f0194b1e1bf1",
+        "android_client_info": {
+          "package_name": "com.example.bus_attendance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOh_6t-nOqN-khZXAnELg65HEfzW0W6GA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

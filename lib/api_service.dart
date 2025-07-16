@@ -1,82 +1,80 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class ApiService {
-  static const String endpoint =
-      "https://script.google.com/macros/s/AKfycbxA87twRX3s45sLzmns7HcOFf0ZxTtR0DWRpDHbjJLIqLGNYvX1O8H7YbRDQueJ9IA8/exec";
+  // ✅ Register User
+  static Future<Map<String, dynamic>> registerUser(
+      String name,
+      String phone,
+      String city,
+      String bus,
+      String stop,
+      String password) async {
+    try {
+      UserCredential userCred = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: '$phone@app.com',
+        password: password,
+      );
 
-static Future<Map<String, dynamic>> register(String name, String phone,
-    String city, String bus, String stop, String pass) async {
-  try {
-    final res = await http.post(
-      Uri.parse(endpoint),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "action": "register",
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCred.user!.uid)
+          .set({
         "name": name,
         "phone": phone,
         "city": city,
         "bus": bus,
-        "stop": stop,  // Changed from "D stop" to "stop"
-        "password": pass,
-      }),
-    );
-
-    print("Response status: ${res.statusCode}");
-    print("Response body: ${res.body}");
-
-    if (res.statusCode != 200) {
-      return {"status": "error", "message": "Server returned ${res.statusCode}"};
-    }
-
-    try {
-      return jsonDecode(res.body);
-    } catch (e) {
-      return {"status": "error", "message": "Invalid JSON: ${res.body}"};
-    }
-  } catch (e) {
-    print("Exception caught: $e");
-    return {"status": "error", "message": "Network error: $e"};
-  }
-}
-
-  static Future<Map<String, dynamic>> login(String phone, String pass) async {
-    final res = await http.post(
-      Uri.parse(endpoint),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"action": "login", "phone": phone, "password": pass}),
-    );
-
-    try {
-      return jsonDecode(res.body);
-    } catch (e) {
-      print("Error decoding JSON: ${res.body}");
-      return {"status": "error", "message": "Invalid server response"};
-    }
-  }
-
-  static Future<Map<String, dynamic>> markAttendance(
-      String name, String phone, String stop, String city, String bus) async {
-    final date = DateTime.now().toString().split(" ")[0];
-    final res = await http.post(
-      Uri.parse(endpoint),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "action": "attendance",
-        "name": name,
-        "phone": phone,
         "stop": stop,
+      });
+
+      return {"status": "success"};
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
+    }
+  }
+
+  // ✅ Login User
+  static Future<Map<String, dynamic>> loginUser(
+      String phone, String password) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: '$phone@app.com',
+        password: password,
+      );
+      return {"status": "success"};
+    } catch (e) {
+      return {"status": "error", "message": e.toString()};
+    }
+  }
+
+  // ✅ Mark Attendance
+  static Future<Map<String, dynamic>> markAttendance(
+    BuildContext context,
+    String name,
+    String phone,
+    String city,
+    String bus,
+    String stop,
+  ) async {
+    try {
+      final date = DateTime.now().toIso8601String().split("T")[0];
+      final time = TimeOfDay.now().format(context);
+
+      await FirebaseFirestore.instance.collection('attendance').add({
+        "name": name,
+        "phone": phone,
         "city": city,
         "bus": bus,
-        "date": date
-      }),
-    );
+        "stop": stop,
+        "date": date,
+        "time": time,
+      });
 
-    try {
-      return jsonDecode(res.body);
+      return {"status": "success"};
     } catch (e) {
-      print("Error decoding JSON: ${res.body}");
-      return {"status": "error", "message": "Invalid server response"};
+      return {"status": "error", "message": e.toString()};
     }
   }
 }

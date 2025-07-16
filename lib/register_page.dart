@@ -13,6 +13,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final stopCtrl = TextEditingController();
 
   String? city, bus;
+  bool isLoading = false;
 
   final cities = ["Morbi", "Rajkot", "Gondal", "Tankara", "Jasdal", "Wankaner"];
   final buses = [
@@ -32,20 +33,43 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    final res = await ApiService.register(
-      nameCtrl.text,
-      phoneCtrl.text,
+    if (nameCtrl.text.isEmpty ||
+        phoneCtrl.text.isEmpty ||
+        stopCtrl.text.isEmpty ||
+        passCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Please fill all fields")));
+      return;
+    }
+
+    if (passCtrl.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Password must be at least 6 characters")));
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    final res = await ApiService.registerUser(
+      nameCtrl.text.trim(),
+      phoneCtrl.text.trim(),
       city!,
       bus!,
-      stopCtrl.text,
-      passCtrl.text,
+      stopCtrl.text.trim(),
+      passCtrl.text.trim(),
     );
+
+    setState(() => isLoading = false);
 
     final message =
         res["status"] == "success" ? "Registered successfully" : res["message"];
 
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+
+    if (res["status"] == "success") {
+      Navigator.pop(context); // return to login or previous screen
+    }
   }
 
   @override
@@ -85,7 +109,11 @@ class _RegisterPageState extends State<RegisterPage> {
               decoration: InputDecoration(labelText: "Password")),
           SizedBox(height: 20),
           ElevatedButton(
-              onPressed: () => register(context), child: Text("Register")),
+            onPressed: isLoading ? null : () => register(context),
+            child: isLoading
+                ? CircularProgressIndicator(color: Colors.white)
+                : Text("Register"),
+          ),
         ]),
       ),
     );
