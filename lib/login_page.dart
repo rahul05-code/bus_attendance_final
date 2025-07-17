@@ -1,14 +1,17 @@
+import 'package:bus_attendance_app/admin_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home_page.dart';
-import 'register_page.dart';
-import 'admin_page.dart';
 
 class LoginPage extends StatelessWidget {
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
+
+  // Define your admin credentials
+  final String adminEmail = "rahulkanzariya861@gmail.com";
+  final String adminPassword = "rahul510205";
 
   void login(BuildContext context) async {
     final email = emailCtrl.text.trim();
@@ -21,26 +24,32 @@ class LoginPage extends StatelessWidget {
       return;
     }
 
-    // 🔐 Admin login check
-    if (email == "admin@bus.com" && pass == "admin123") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => AdminPage()),
-      );
-      return;
-    }
-
     try {
-      // 🔐 Regular Firebase Auth login
+      // Firebase login
       UserCredential userCred = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pass);
 
+      // Check if admin
+      if (email == adminEmail && pass == adminPassword) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => AdminAttendancePage()),
+        );
+        return;
+      }
+
+      // Normal user - Fetch Firestore data
       final doc = await FirebaseFirestore.instance
           .collection("users")
           .doc(userCred.user!.uid)
           .get();
 
-      if (!doc.exists) throw Exception("User data not found");
+      if (!doc.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("User data not found")),
+        );
+        return;
+      }
 
       final userData = doc.data()!;
       final userString =
@@ -51,7 +60,12 @@ class LoginPage extends StatelessWidget {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => HomePage()),
+        MaterialPageRoute(
+          builder: (_) => Scaffold(
+            appBar: AppBar(title: Text("Admin")),
+            body: Center(child: Text("Admin Login Successful")),
+          ),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -66,30 +80,22 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(title: Text("Login")),
       body: Padding(
         padding: EdgeInsets.all(20),
-        child: Column(children: [
-          TextField(
-            controller: emailCtrl,
-            decoration: InputDecoration(labelText: "Email or Admin ID"),
-            keyboardType: TextInputType.emailAddress,
-          ),
-          TextField(
-            controller: passCtrl,
-            decoration: InputDecoration(labelText: "Password"),
-            obscureText: true,
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => login(context),
-            child: Text("Login"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => RegisterPage()),
+        child: Column(
+          children: [
+            TextField(
+                controller: emailCtrl,
+                decoration: InputDecoration(labelText: "Email")),
+            TextField(
+                controller: passCtrl,
+                decoration: InputDecoration(labelText: "Password"),
+                obscureText: true),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => login(context),
+              child: Text("Login"),
             ),
-            child: Text("Don't have an account? Register"),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
