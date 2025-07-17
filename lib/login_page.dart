@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'home_page.dart';
 import 'register_page.dart';
+import 'admin_page.dart';
 
 class LoginPage extends StatelessWidget {
   final emailCtrl = TextEditingController();
@@ -21,12 +21,20 @@ class LoginPage extends StatelessWidget {
       return;
     }
 
+    // 🔐 Admin login check
+    if (email == "admin@bus.com" && pass == "admin123") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => AdminPage()),
+      );
+      return;
+    }
+
     try {
-      // Login with Firebase Auth using email
+      // 🔐 Regular Firebase Auth login
       UserCredential userCred = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pass);
 
-      // Fetch user details from Firestore
       final doc = await FirebaseFirestore.instance
           .collection("users")
           .doc(userCred.user!.uid)
@@ -38,7 +46,6 @@ class LoginPage extends StatelessWidget {
       final userString =
           "${userData['name']},${userData['phone']},${userData['city']},${userData['bus']},${userData['stop']}";
 
-      // Store in SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("user", userString);
 
@@ -62,7 +69,7 @@ class LoginPage extends StatelessWidget {
         child: Column(children: [
           TextField(
             controller: emailCtrl,
-            decoration: InputDecoration(labelText: "Email"),
+            decoration: InputDecoration(labelText: "Email or Admin ID"),
             keyboardType: TextInputType.emailAddress,
           ),
           TextField(
