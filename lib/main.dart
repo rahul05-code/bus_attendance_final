@@ -17,8 +17,8 @@ Future<void> main() async {
   //         messagingSenderId: "702515887588",
   //         appId: "1:702515887588:web:fc42a25a7e9634001e1bf1"));
   runApp(MaterialApp(
-    //home: LoginPage(),
+    home: LoginPage(),
     debugShowCheckedModeBanner: false,
-    home: AdminPage(),
+    //home: AdminPage(),
   ));
 }
