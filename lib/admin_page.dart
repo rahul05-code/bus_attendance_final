@@ -231,7 +231,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-                          headingRowColor: MaterialStateProperty.all(Colors.blue[50]),
+                          headingRowColor:
+                              MaterialStateProperty.all(Colors.blue[50]),
                           border: TableBorder.all(color: Colors.grey[300]!),
                           columns: const [
                             DataColumn(
@@ -276,12 +277,18 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
 
                             return DataRow(
                               cells: [
-                                DataCell(Text(record['name']?.toString() ?? 'N/A')),
-                                DataCell(Text(record['phone']?.toString() ?? 'N/A')),
-                                DataCell(Text(record['bus']?.toString() ?? 'N/A')),
-                                DataCell(Text(record['stop']?.toString() ?? 'N/A')),
-                                DataCell(Text(record['time']?.toString() ?? 'N/A')),
-                                DataCell(Text(record['date']?.toString() ?? 'N/A')),
+                                DataCell(
+                                    Text(record['name']?.toString() ?? 'N/A')),
+                                DataCell(
+                                    Text(record['phone']?.toString() ?? 'N/A')),
+                                DataCell(
+                                    Text(record['bus']?.toString() ?? 'N/A')),
+                                DataCell(
+                                    Text(record['stop']?.toString() ?? 'N/A')),
+                                DataCell(
+                                    Text(record['time']?.toString() ?? 'N/A')),
+                                DataCell(
+                                    Text(record['date']?.toString() ?? 'N/A')),
                               ],
                             );
                           }).toList(),
