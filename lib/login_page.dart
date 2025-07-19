@@ -1,4 +1,6 @@
 import 'package:bus_attendance_app/admin_page.dart';
+import 'package:bus_attendance_app/register_page.dart';
+import 'package:bus_attendance_app/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -60,10 +62,7 @@ class LoginPage extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: Text("Admin")),
-            body: Center(child: Text("Admin Login Successful")),
-          ),
+          builder: (_) => HomePage(),
         ),
       );
     } catch (e) {
@@ -92,6 +91,28 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => login(context),
               child: Text("Login"),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Don't have an account? "),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => RegisterPage()),
+                    );
+                  },
+                  child: Text(
+                    "Register here",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
