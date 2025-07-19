@@ -20,7 +20,7 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage> {
   bool scanned = false;
-  
+
   // Define the specific QR code content that should trigger attendance
   static const String VALID_QR_CODE = "BUS_ATTENDANCE_2025";
   // You can also use multiple valid codes:
@@ -36,7 +36,7 @@ class _ScanPageState extends State<ScanPage> {
     // Get the scanned QR code content
     final List<Barcode> barcodes = capture.barcodes;
     if (barcodes.isEmpty) return;
-    
+
     final String? qrContent = barcodes.first.rawValue;
     if (qrContent == null || qrContent.isEmpty) {
       _showErrorDialog("Invalid QR Code", "Could not read QR code content.");
@@ -45,10 +45,8 @@ class _ScanPageState extends State<ScanPage> {
 
     // Check if the scanned QR code is valid for attendance
     if (!VALID_QR_CODES.contains(qrContent.trim())) {
-      _showErrorDialog(
-        "Invalid QR Code", 
-        "This QR code is not valid for attendance marking.\n\nScanned: $qrContent"
-      );
+      _showErrorDialog("Invalid QR Code",
+          "This QR code is not valid for attendance marking.\n\nScanned: $qrContent");
       return;
     }
 
@@ -71,9 +69,8 @@ class _ScanPageState extends State<ScanPage> {
         "qr_code": qrContent, // Store the QR code that was scanned
       });
 
-      _showSuccessDialog("Attendance Marked Successfully!", 
-        "Your attendance has been recorded for $date at $time"
-      );
+      _showSuccessDialog("Attendance Marked Successfully!",
+          "Your attendance has been recorded for $date at $time");
     } catch (e) {
       scanned = false; // Reset scanned flag on error
       _showErrorDialog("Error", "Failed to mark attendance: $e");

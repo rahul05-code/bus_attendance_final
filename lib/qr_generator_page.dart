@@ -5,7 +5,7 @@ class QRGeneratorPage extends StatelessWidget {
   // Valid QR codes that can mark attendance
   static const List<String> validCodes = [
     "BUS_ATTENDANCE_2025",
-    "ATTENDANCE_QR", 
+    "ATTENDANCE_QR",
     "BUS_SCAN_CODE"
   ];
 
