@@ -20,7 +20,7 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
     "Gondal(Big)",
     "Gondal(Small)",
     "Rajkot",
-    "Jasdal",
+    "Jasdan",
     "Wankaner"
   ];
 

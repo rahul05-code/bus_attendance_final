@@ -16,14 +16,14 @@ class _RegisterPageState extends State<RegisterPage> {
   String? city, bus;
   bool isLoading = false;
 
-  final cities = ["Morbi", "Rajkot", "Gondal", "Tankara", "Jasdal", "Wankaner"];
+  final cities = ["Morbi", "Rajkot", "Gondal", "Tankara", "Jasdan", "Wankaner"];
   final buses = [
     "Morbi(Big)",
     "Morbi(Small)",
     "Gondal(Big)",
     "Gondal(Small)",
     "Rajkot",
-    "Jasdal",
+    "Jasdan",
     "Wankaner"
   ];
 
