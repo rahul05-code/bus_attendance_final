@@ -11,8 +11,11 @@ class LoginPage extends StatelessWidget {
   final passCtrl = TextEditingController();
 
   // Define your admin credentials
-  final String adminEmail = "rahulkanzariya861@gmail.com";
-  final String adminPassword = "rahul510205";
+  final List<String> adminEmail = [
+    'rahulkanzariya861@gmail.com',
+    'agherabansi10@gmail.com'
+  ];
+  final List<String> adminPassword = ['rahul510205', 'Banai@#4040'];
 
   void login(BuildContext context) async {
     final email = emailCtrl.text.trim();
