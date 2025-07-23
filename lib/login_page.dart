@@ -1,3 +1,4 @@
+import 'package:bus_attendance_app/admin_attendance_page.dart';
 import 'package:bus_attendance_app/admin_page.dart';
 import 'package:bus_attendance_app/register_page.dart';
 import 'package:bus_attendance_app/home_page.dart';
@@ -11,8 +12,8 @@ class LoginPage extends StatelessWidget {
   final passCtrl = TextEditingController();
 
   // Define your admin credentials
-  final List<String> adminEmail = ['rahulkanzariya861@gmail.com','agherabansi10@gmail.com'];
-  final List<String> adminPassword = ['rahul510205','Bansi@#4040'];
+  final String adminEmail = "rahulkanzariya861@gmail.com";
+  final String adminPassword = "rahul510205";
 
   void login(BuildContext context) async {
     final email = emailCtrl.text.trim();
@@ -34,7 +35,7 @@ class LoginPage extends StatelessWidget {
       if (email == adminEmail && pass == adminPassword) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => AdminAttendancePage()),
+          MaterialPageRoute(builder: (_) => AdminHomePage()),
         );
         return;
       }

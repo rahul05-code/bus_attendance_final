@@ -63,16 +63,16 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Welcome ${name.isNotEmpty ? name : ''}"),
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => QRGeneratorPage()),
-              );
-            },
-            icon: Icon(Icons.qr_code),
-            tooltip: "QR Generator",
-          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (_) => QRGeneratorPage()),
+          //     );
+          //   },
+          //   icon: Icon(Icons.qr_code),
+          //   tooltip: "QR Generator",
+          // ),
         ],
       ),
       body: isLoading
