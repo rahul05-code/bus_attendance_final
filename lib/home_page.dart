@@ -91,9 +91,9 @@ class _HomePageState extends State<HomePage> {
                           Text(
                             "Your Details:",
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red),
                           ),
                           SizedBox(height: 12),
                           _buildDetailRow("Name", name),
@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                       icon: Icon(Icons.qr_code_scanner),
                       label: Text("Scan QR for Attendance"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                         padding:
                             EdgeInsets.symmetric(horizontal: 24, vertical: 12),

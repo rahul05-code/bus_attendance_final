@@ -232,7 +232,7 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
                           headingRowColor:
-                              MaterialStateProperty.all(Colors.blue[50]),
+                              WidgetStateProperty.all(Colors.blue[50]),
                           border: TableBorder.all(color: Colors.grey[300]!),
                           columns: const [
                             DataColumn(

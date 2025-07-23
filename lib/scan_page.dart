@@ -122,7 +122,7 @@ class _ScanPageState extends State<ScanPage> {
             children: [
               Icon(Icons.error, color: Colors.red, size: 28),
               SizedBox(width: 8),
-              Text(title, style: TextStyle(color: Colors.red)),
+              Text(title, style: TextStyle(color: Colors.white)),
             ],
           ),
           content: Text(message),
@@ -154,7 +154,7 @@ class _ScanPageState extends State<ScanPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Scan QR for Attendance"),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.red,
         foregroundColor: Colors.white,
       ),
       body: Column(
@@ -165,7 +165,7 @@ class _ScanPageState extends State<ScanPage> {
             color: Colors.blue[50],
             child: Column(
               children: [
-                Icon(Icons.qr_code_scanner, size: 48, color: Colors.blue),
+                Icon(Icons.qr_code_scanner, size: 48, color: Colors.red),
                 SizedBox(height: 8),
                 Text(
                   "Scan the official bus attendance QR code",
