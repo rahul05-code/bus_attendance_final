@@ -17,8 +17,13 @@ dependencies:
   firebase_auth: ^4.17.4
   cloud_firestore: ^4.14.0
   intl: ^0.20.2
+  flutter_launcher_icons: ^0.14.4
 
 
-
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon.png"
+  
 flutter:
   uses-material-design: true

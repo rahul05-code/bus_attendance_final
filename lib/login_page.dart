@@ -1,4 +1,3 @@
-import 'package:bus_attendance_app/admin_attendance_page.dart';
 import 'package:bus_attendance_app/admin_page.dart';
 import 'package:bus_attendance_app/register_page.dart';
 import 'package:bus_attendance_app/home_page.dart';
