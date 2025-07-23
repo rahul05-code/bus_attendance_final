@@ -162,7 +162,7 @@ class _ScanPageState extends State<ScanPage> {
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(16),
-            color: Colors.blue[50],
+            color: Colors.red[50],
             child: Column(
               children: [
                 Icon(Icons.qr_code_scanner, size: 48, color: Colors.red),
@@ -172,7 +172,7 @@ class _ScanPageState extends State<ScanPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
+                    color: Colors.red[800],
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -181,7 +181,7 @@ class _ScanPageState extends State<ScanPage> {
                   "Only authorized QR codes will mark attendance",
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.blue[600],
+                    color: Colors.red[600],
                   ),
                   textAlign: TextAlign.center,
                 ),

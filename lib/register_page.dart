@@ -118,8 +118,12 @@ class _RegisterPageState extends State<RegisterPage> {
           ElevatedButton(
             onPressed: isLoading ? null : () => register(context),
             child: isLoading
-                ? CircularProgressIndicator(color: Colors.white)
+                ? CircularProgressIndicator(color: Colors.red)
                 : Text("Register"),
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(Colors.red),
+              foregroundColor: WidgetStateProperty.all(Colors.white),
+            ),
           ),
         ]),
       ),

@@ -92,6 +92,10 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => login(context),
               child: Text("Login"),
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.red),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+              ),
             ),
             SizedBox(height: 20),
             Row(
@@ -109,7 +113,7 @@ class LoginPage extends StatelessWidget {
                     "Register here",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: Colors.red,
                     ),
                   ),
                 ),

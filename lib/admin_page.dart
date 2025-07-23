@@ -21,10 +21,13 @@ class AdminHomePage extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 icon: const Icon(Icons.people),
-                label: const Text("Manage Users (Bus-wise)"),
+                label: const Text(
+                  "Manage Users",
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.red,
                 ),
                 onPressed: () {
                   Navigator.push(
@@ -37,7 +40,8 @@ class AdminHomePage extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 icon: const Icon(Icons.list),
-                label: const Text("View Attendance (Bus-wise)"),
+                label: const Text("View Attendance",
+                    style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   backgroundColor: Colors.green,
