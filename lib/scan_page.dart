@@ -4,16 +4,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class ScanPage extends StatefulWidget {
-  final String name, phone, stop, city, bus;
+  final String name, phone, field, sem, stop, city, bus;
 
   const ScanPage({
     required this.name,
     required this.phone,
+    required this.field,
+    required this.sem,
     required this.stop,
     required this.city,
     required this.bus,
-    required String field,
-    required String sem,
   });
 
   @override
@@ -66,6 +66,8 @@ class _ScanPageState extends State<ScanPage> {
       await FirebaseFirestore.instance.collection("attendance").add({
         "name": widget.name,
         "phone": widget.phone,
+        "field": widget.field,
+        "sem": widget.sem,
         "stop": widget.stop,
         "city": widget.city,
         "bus": widget.bus,
@@ -91,67 +93,47 @@ class _ScanPageState extends State<ScanPage> {
     });
   }
 
-  void _showSuccessDialog(String title, String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 28),
-              SizedBox(width: 8),
-              Text(title, style: TextStyle(color: Colors.green)),
-            ],
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Return to home
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.error, color: Colors.red, size: 28),
-              SizedBox(width: 8),
-              Text(title, style: TextStyle(color: Colors.white)),
-            ],
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: Text(
+            message,
+            softWrap: true,
+            style: TextStyle(color: Colors.red),
           ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  scanned = false; // Reset to allow scanning again
-                });
-              },
-              child: Text("Try Again"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Return to home
-              },
-              child: Text("Cancel"),
-            ),
-          ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: Text(
+            message,
+            softWrap: true,
+            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
