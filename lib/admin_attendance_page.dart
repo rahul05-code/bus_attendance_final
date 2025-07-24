@@ -397,7 +397,7 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                           ),
                           child: DataTable(
                             headingRowColor:
-                                WidgetStateProperty.all(Colors.blue[50]),
+                                WidgetStateProperty.all(Colors.red[50]),
                             border: TableBorder.all(
                               color: Colors.grey.shade300,
                               borderRadius: BorderRadius.circular(8.0),
@@ -469,8 +469,15 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                                     ),
                                   ),
                                   DataCell(Text(data['phone'] ?? '')),
-                                  DataCell(Text(data['field'] ?? '')),
-                                  DataCell(Text(data['sem'] ?? '')),
+                                  DataCell(
+                                    Text(
+                                      data['field'] ?? 'N/A',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  DataCell(Text(data['sem'] ?? 'N/A')),
                                   DataCell(
                                     Container(
                                       padding: const EdgeInsets.symmetric(

@@ -264,6 +264,8 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
     final stopController = TextEditingController();
+    final fieldController = TextEditingController();
+    final semController = TextEditingController();
     String? userBus;
 
     showDialog(
@@ -290,6 +292,23 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: fieldController,
+                  decoration: const InputDecoration(
+                    labelText: "Field",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: semController,
+                  decoration: const InputDecoration(
+                    labelText: "Semester",
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -330,12 +349,16 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
               onPressed: () async {
                 if (nameController.text.isNotEmpty &&
                     phoneController.text.isNotEmpty &&
+                    fieldController.text.isNotEmpty &&
+                    semController.text.isNotEmpty &&
                     userBus != null &&
                     stopController.text.isNotEmpty) {
                   try {
                     await FirebaseFirestore.instance.collection('users').add({
                       'name': nameController.text.trim(),
                       'phone': phoneController.text.trim(),
+                      'field': fieldController.text.trim(),
+                      'sem': semController.text.trim(),
                       'bus': userBus,
                       'stop': stopController.text.trim(),
                     });
@@ -373,6 +396,9 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
     final nameController = TextEditingController(text: userData['name'] ?? '');
     final phoneController =
         TextEditingController(text: userData['phone'] ?? '');
+    final fieldController =
+        TextEditingController(text: userData['field'] ?? '');
+    final semController = TextEditingController(text: userData['sem'] ?? '');
     final stopController = TextEditingController(text: userData['stop'] ?? '');
     String? userBus = userData['bus'];
 
@@ -400,6 +426,23 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: fieldController,
+                  decoration: const InputDecoration(
+                    labelText: "Field",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: semController,
+                  decoration: const InputDecoration(
+                    labelText: "Semester",
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -440,6 +483,8 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
               onPressed: () async {
                 if (nameController.text.isNotEmpty &&
                     phoneController.text.isNotEmpty &&
+                    fieldController.text.isNotEmpty &&
+                    semController.text.isNotEmpty &&
                     userBus != null &&
                     stopController.text.isNotEmpty) {
                   try {
@@ -449,6 +494,8 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
                         .update({
                       'name': nameController.text.trim(),
                       'phone': phoneController.text.trim(),
+                      'field': fieldController.text.trim(),
+                      'sem': semController.text.trim(),
                       'bus': userBus,
                       'stop': stopController.text.trim(),
                     });

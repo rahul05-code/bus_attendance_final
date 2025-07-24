@@ -11,7 +11,9 @@ class ScanPage extends StatefulWidget {
     required this.phone,
     required this.stop,
     required this.city,
-    required this.bus, required String field, required String sem,
+    required this.bus,
+    required String field,
+    required String sem,
   });
 
   @override
@@ -22,12 +24,16 @@ class _ScanPageState extends State<ScanPage> {
   bool scanned = false;
 
   // Define the specific QR code content that should trigger attendance
-  static const String VALID_QR_CODE = "BUS_ATTENDANCE_2025";
+  //static const String VALID_QR_CODE = "BUS_ATTENDANCE_2025";
   // You can also use multiple valid codes:
   static const List<String> VALID_QR_CODES = [
-    "BUS_ATTENDANCE_2025",
-    "ATTENDANCE_QR",
-    "BUS_SCAN_CODE"
+    "BUS_MORBI_BIG",
+    "BUS_MORBI_SMALL",
+    "BUS_GONDAL_BIG",
+    "BUS_GONDAL_SMALL",
+    "BUS_RAJKOT",
+    "BUS_JASDAN",
+    "BUS_WANKANER",
   ];
 
   void onDetect(BarcodeCapture capture) async {
