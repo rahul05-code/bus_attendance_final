@@ -12,6 +12,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final phoneCtrl = TextEditingController();
   final passCtrl = TextEditingController();
   final stopCtrl = TextEditingController();
+  final fieldCtrl = TextEditingController();
+  final semCtrl = TextEditingController();
 
   String? city, bus;
   bool isLoading = false;
@@ -37,6 +39,8 @@ class _RegisterPageState extends State<RegisterPage> {
     if (nameCtrl.text.isEmpty ||
         emailCtrl.text.isEmpty ||
         phoneCtrl.text.isEmpty ||
+        fieldCtrl.text.isEmpty ||
+        semCtrl.text.isEmpty ||
         stopCtrl.text.isEmpty ||
         passCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context)
@@ -56,6 +60,8 @@ class _RegisterPageState extends State<RegisterPage> {
       nameCtrl.text.trim(),
       emailCtrl.text.trim(),
       phoneCtrl.text.trim(),
+      fieldCtrl.text.trim(),
+      semCtrl.text.trim(),
       city!,
       bus!,
       stopCtrl.text.trim(),
@@ -93,6 +99,14 @@ class _RegisterPageState extends State<RegisterPage> {
               controller: phoneCtrl,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(labelText: "Phone")),
+          TextField(
+              controller: fieldCtrl,
+              decoration: InputDecoration(
+                  labelText: "Field like..B tech,BBA,Diploma etc.")),
+          TextField(
+              controller: semCtrl,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: "Semester")),
           DropdownButtonFormField(
               value: city,
               hint: Text("Select City"),
@@ -109,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
               onChanged: (v) => setState(() => bus = v)),
           TextField(
               controller: stopCtrl,
-              decoration: InputDecoration(labelText: "Stop")),
+              decoration: InputDecoration(labelText: "Bus Stop Name")),
           TextField(
               controller: passCtrl,
               obscureText: true,

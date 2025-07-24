@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'scan_page.dart';
-import 'qr_generator_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,7 +9,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String name = "", phone = "", stop = "", city = "", bus = "";
+  String name = "",
+      phone = "",
+      field = "",
+      sem = "",
+      stop = "",
+      city = "",
+      bus = "";
   bool isLoading = true;
 
   @override
@@ -38,6 +43,8 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           name = data["name"] ?? "";
           phone = data["phone"] ?? "";
+          field = data["field"] ?? "";
+          sem = data["sem"] ?? "";
           stop = data["stop"] ?? "";
           city = data["city"] ?? "";
           bus = data["bus"] ?? "";
@@ -98,6 +105,8 @@ class _HomePageState extends State<HomePage> {
                           SizedBox(height: 12),
                           _buildDetailRow("Name", name),
                           _buildDetailRow("Phone", phone),
+                          _buildDetailRow("Field", field),
+                          _buildDetailRow("Sem", sem),
                           _buildDetailRow("City", city),
                           _buildDetailRow("Bus", bus),
                           _buildDetailRow("Stop", stop),
@@ -115,6 +124,8 @@ class _HomePageState extends State<HomePage> {
                             builder: (_) => ScanPage(
                               name: name,
                               phone: phone,
+                              field: field,
+                              sem: sem,
                               stop: stop,
                               city: city,
                               bus: bus,

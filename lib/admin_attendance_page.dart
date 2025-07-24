@@ -416,6 +416,14 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                                 ),
                               ),
                               DataColumn(
+                                  label: Text("Field",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text("Semester",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
                                 label: Text(
                                   "Bus",
                                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -461,6 +469,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                                     ),
                                   ),
                                   DataCell(Text(data['phone'] ?? '')),
+                                  DataCell(Text(data['field'] ?? '')),
+                                  DataCell(Text(data['sem'] ?? '')),
                                   DataCell(
                                     Container(
                                       padding: const EdgeInsets.symmetric(
@@ -468,13 +478,13 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.blue[100],
+                                        color: Colors.red[100],
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
                                         data['bus'] ?? '',
                                         style: TextStyle(
-                                          color: Colors.blue[800],
+                                          color: Colors.red[800],
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                         ),

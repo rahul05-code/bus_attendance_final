@@ -179,37 +179,46 @@ class _AdminUserManagementPageState extends State<AdminUserManagementPage> {
                           children: [
                             Text("📞 ${user['phone'] ?? 'No Phone'}"),
                             const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[100],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    user['bus'] ?? '',
-                                    style: TextStyle(
-                                      color: Colors.red[800],
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
+
+                            // Bus shown in badge style
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red[100],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                user['bus'] ?? '',
+                                style: TextStyle(
+                                  color: Colors.red[800],
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                                const SizedBox(width: 8),
-                                Flexible(
-                                  flex: 3,
-                                  child: Text(
-                                    "🚏 ${user['stop'] ?? 'No Stop'}",
-                                    style: TextStyle(color: Colors.grey[600]),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            // Stop on next line
+                            Text(
+                              "🚏 ${user['stop'] ?? 'No Stop'}",
+                              style: TextStyle(color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            // Field and SEM
+                            Text(
+                              "🎓 Field: ${user['field'] ?? 'N/A'}",
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              "📘 SEM: ${user['sem'] ?? 'N/A'}",
+                              style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],
                         ),

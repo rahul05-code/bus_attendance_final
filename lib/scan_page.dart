@@ -11,7 +11,7 @@ class ScanPage extends StatefulWidget {
     required this.phone,
     required this.stop,
     required this.city,
-    required this.bus,
+    required this.bus, required String field, required String sem,
   });
 
   @override
