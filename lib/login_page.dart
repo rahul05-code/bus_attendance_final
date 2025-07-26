@@ -14,6 +14,9 @@ class LoginPage extends StatelessWidget {
   final List<Map<String, String>> adminCredentials = [
     {"email": "rahulkanzariya861@gmail.com", "password": "rahul510205"},
     {"email": "agherabansi10@gmail.com", "password": "bansi4040"},
+    {"email": "birjutimbadiya24@gmail.com", "password": "birju@1401"},
+    {"email": "vallabhbhai@gmail.com", "password": "vallabh@1066"},
+
     // Add more fixed admin accounts here as needed
   ];
 
@@ -67,7 +70,9 @@ class LoginPage extends StatelessWidget {
 
       if (!userDoc.exists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User data not found for this account. Please register or contact support.")),
+          const SnackBar(
+              content: Text(
+                  "User data not found for this account. Please register or contact support.")),
         );
         await FirebaseAuth.instance.signOut(); // Log out the partial user
         return;
@@ -102,7 +107,8 @@ class LoginPage extends StatelessWidget {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An unexpected error occurred: ${e.toString()}")),
+        SnackBar(
+            content: Text("An unexpected error occurred: ${e.toString()}")),
       );
     }
   }
@@ -260,7 +266,8 @@ class LoginPage extends StatelessWidget {
           labelStyle: TextStyle(color: Colors.grey[600]),
           prefixIcon: Icon(icon, color: Colors.grey[500]),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(color: Colors.red[700]!, width: 2),
