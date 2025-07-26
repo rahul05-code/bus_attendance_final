@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'dart:typed_data';
 
 class AdminAttendancePage extends StatefulWidget {
   const AdminAttendancePage({super.key});
@@ -74,7 +78,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
       },
     );
 
-    if (picked != null && picked.toIso8601String().substring(0, 10) != selectedDate) {
+    if (picked != null &&
+        picked.toIso8601String().substring(0, 10) != selectedDate) {
       setState(() {
         selectedDate = formatter.format(picked);
         selectedUser = null;
@@ -95,12 +100,300 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
     return selectedDate != today || selectedBus != null || selectedUser != null;
   }
 
+  Future<void> _downloadAttendancePDF(List<QueryDocumentSnapshot> docs) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: Colors.red),
+                  SizedBox(height: 16),
+                  Text('Generating PDF...'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final pdf = pw.Document();
+
+      // Filter docs based on selected user
+      final filteredDocs = selectedUser == null || selectedUser == 'All Users'
+          ? docs
+          : docs.where((doc) {
+              final name = (doc.data() as Map)['name']?.toString() ?? '';
+              return name == selectedUser;
+            }).toList();
+
+      // Sort by time
+      filteredDocs.sort((a, b) {
+        final aTime = (a.data() as Map)['time']?.toString() ?? '';
+        final bTime = (b.data() as Map)['time']?.toString() ?? '';
+        return aTime.compareTo(bTime);
+      });
+
+      // Generate filter summary
+      String filterSummary = '';
+      if (selectedBus != null && selectedBus != 'All Buses') {
+        filterSummary += 'Bus: $selectedBus  ';
+      }
+      if (selectedUser != null && selectedUser != 'All Users') {
+        filterSummary += 'User: $selectedUser  ';
+      }
+      if (filterSummary.isEmpty) {
+        filterSummary = selectedBus == null ? 'All Buses' : 'All Users';
+      }
+
+      // Create PDF pages
+      const int recordsPerPage = 25;
+      final int totalPages = (filteredDocs.length / recordsPerPage).ceil();
+
+      for (int pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+        final startIndex = pageIndex * recordsPerPage;
+        final endIndex = (startIndex + recordsPerPage > filteredDocs.length)
+            ? filteredDocs.length
+            : startIndex + recordsPerPage;
+        final pageData = filteredDocs.sublist(startIndex, endIndex);
+
+        pdf.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat.a4.landscape,
+            margin: const pw.EdgeInsets.all(20),
+            build: (pw.Context context) {
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  pw.Container(
+                    width: double.infinity,
+                    padding: const pw.EdgeInsets.all(16),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.red800,
+                      borderRadius: pw.BorderRadius.circular(8),
+                    ),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'Attendance Report',
+                          style: pw.TextStyle(
+                            color: PdfColors.white,
+                            fontSize: 24,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                        pw.SizedBox(height: 8),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Text(
+                              'Date: ${displayFormatter.format(formatter.parse(selectedDate))}',
+                              style: pw.TextStyle(
+                                color: PdfColors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            pw.Text(
+                              'Filters: $filterSummary',
+                              style: pw.TextStyle(
+                                color: PdfColors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Text(
+                              'Total Records: ${filteredDocs.length}',
+                              style: pw.TextStyle(
+                                color: PdfColors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            pw.Text(
+                              'Page ${pageIndex + 1} of $totalPages',
+                              style: pw.TextStyle(
+                                color: PdfColors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  pw.SizedBox(height: 20),
+
+                  // Table
+                  pw.Expanded(
+                    child: pw.Table(
+                      border: pw.TableBorder.all(
+                        color: PdfColors.grey400,
+                        width: 0.5,
+                      ),
+                      columnWidths: {
+                        0: const pw.FlexColumnWidth(2.5), // Name
+                        1: const pw.FlexColumnWidth(2), // Phone
+                        2: const pw.FlexColumnWidth(2), // Field
+                        3: const pw.FlexColumnWidth(1.5), // Sem
+                        4: const pw.FlexColumnWidth(2), // Bus
+                        5: const pw.FlexColumnWidth(2), // Stop
+                        6: const pw.FlexColumnWidth(1.5), // Time
+                        7: const pw.FlexColumnWidth(2), // Date
+                      },
+                      children: [
+                        // Header row
+                        pw.TableRow(
+                          decoration: pw.BoxDecoration(
+                            color: PdfColors.grey200,
+                          ),
+                          children: [
+                            _buildTableCell('Name', isHeader: true),
+                            _buildTableCell('Phone', isHeader: true),
+                            _buildTableCell('Field', isHeader: true),
+                            _buildTableCell('Semester', isHeader: true),
+                            _buildTableCell('Bus', isHeader: true),
+                            _buildTableCell('Stop', isHeader: true),
+                            _buildTableCell('Time', isHeader: true),
+                            _buildTableCell('Date', isHeader: true),
+                          ],
+                        ),
+                        // Data rows
+                        ...pageData.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final doc = entry.value;
+                          final data = doc.data() as Map<String, dynamic>;
+
+                          return pw.TableRow(
+                            decoration: pw.BoxDecoration(
+                              color: index % 2 == 0
+                                  ? PdfColors.white
+                                  : PdfColors.grey50,
+                            ),
+                            children: [
+                              _buildTableCell(
+                                  data['name']?.toString() ?? 'N/A'),
+                              _buildTableCell(
+                                  data['phone']?.toString() ?? 'N/A'),
+                              _buildTableCell(
+                                  data['field']?.toString() ?? 'N/A'),
+                              _buildTableCell(data['sem']?.toString() ?? 'N/A'),
+                              _buildTableCell(data['bus']?.toString() ?? 'N/A'),
+                              _buildTableCell(
+                                  data['stop']?.toString() ?? 'N/A'),
+                              _buildTableCell(
+                                  data['time']?.toString() ?? 'N/A'),
+                              _buildTableCell(
+                                  data['date']?.toString() ?? 'N/A'),
+                            ],
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
+
+                  // Footer
+                  pw.SizedBox(height: 20),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text(
+                        'Generated on: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now())}',
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColors.grey600,
+                        ),
+                      ),
+                      pw.Text(
+                        'Attendance Management System',
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColors.grey600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      }
+
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      // Generate filename
+      String filename = 'Attendance_${selectedDate}';
+      if (selectedBus != null && selectedBus != 'All Buses') {
+        filename +=
+            '_${selectedBus?.replaceAll('(', '_').replaceAll(')', '_')}';
+      }
+      if (selectedUser != null && selectedUser != 'All Users') {
+        filename += '_${selectedUser?.replaceAll(' ', '_')}';
+      }
+      filename += '.pdf';
+
+      // Show print/share dialog
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save(),
+        name: filename,
+      );
+    } catch (e) {
+      // Close loading dialog if still open
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Failed to generate PDF: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  pw.Widget _buildTableCell(String text, {bool isHeader = false}) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(8),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(
+          fontSize: isHeader ? 12 : 10,
+          fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
+          color: isHeader ? PdfColors.black : PdfColors.grey800,
+        ),
+        textAlign: pw.TextAlign.left,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Attendance Dashboard", // Changed title
+          "Attendance Dashboard",
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -114,7 +407,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
           if (hasActiveFilters)
             IconButton(
               onPressed: _clearAllFilters,
-              icon: const Icon(Icons.filter_alt_off_outlined, color: Colors.white),
+              icon: const Icon(Icons.filter_alt_off_outlined,
+                  color: Colors.white),
               tooltip: "Clear All Filters",
             ),
           const SizedBox(width: 8),
@@ -126,8 +420,9 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Colors.red[800], // Red background matching app bar
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              color: Colors.red[800],
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -155,7 +450,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          displayFormatter.format(formatter.parse(selectedDate)),
+                          displayFormatter
+                              .format(formatter.parse(selectedDate)),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
@@ -166,15 +462,18 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                     ),
                     ElevatedButton.icon(
                       onPressed: _pickDate,
-                      icon: const Icon(Icons.calendar_month_outlined, color: Colors.red),
+                      icon: const Icon(Icons.calendar_month_outlined,
+                          color: Colors.red),
                       label: const Text(
                         "Change Date",
                         style: TextStyle(color: Colors.red),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                       ),
                     ),
                   ],
@@ -191,7 +490,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                             value: null,
                             child: Text("All Buses"),
                           ),
-                          ...busList.map((bus) => DropdownMenuItem(value: bus, child: Text(bus))),
+                          ...busList.map((bus) =>
+                              DropdownMenuItem(value: bus, child: Text(bus))),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -199,8 +499,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                             selectedUser = null;
                           });
                         },
-                        dropdownColor: Colors.red[700], // Red dropdown background
-                        textColor: Colors.white, // White text in dropdown
+                        dropdownColor: Colors.red[700],
+                        textColor: Colors.white,
                         iconColor: Colors.white70,
                       ),
                     ),
@@ -209,7 +509,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                       child: StreamBuilder<QuerySnapshot>(
                         stream: getAttendanceStream(selectedDate, selectedBus),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return _buildFilterDropdown(
                               hint: "Loading Users...",
                               value: null,
@@ -222,7 +523,10 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                           }
                           final allDocs = snapshot.data?.docs ?? [];
                           final userNames = allDocs
-                              .map((doc) => (doc.data() as Map<String, dynamic>)['name']?.toString() ?? '')
+                              .map((doc) =>
+                                  (doc.data() as Map<String, dynamic>)['name']
+                                      ?.toString() ??
+                                  '')
                               .where((name) => name.isNotEmpty)
                               .toSet()
                               .toList()
@@ -236,7 +540,9 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                                 value: null,
                                 child: Text("All Users"),
                               ),
-                              ...userNames.map((name) => DropdownMenuItem<String>(value: name, child: Text(name))),
+                              ...userNames.map((name) =>
+                                  DropdownMenuItem<String>(
+                                      value: name, child: Text(name))),
                             ],
                             onChanged: (value) {
                               setState(() {
@@ -253,22 +559,68 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                if (hasActiveFilters)
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: _clearAllFilters,
-                      icon: Icon(Icons.refresh_outlined, size: 18, color: Colors.white70),
-                      label: Text(
-                        "Reset Filters",
-                        style: TextStyle(color: Colors.white70),
+                Row(
+                  children: [
+                    if (hasActiveFilters)
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: _clearAllFilters,
+                          icon: Icon(Icons.refresh_outlined,
+                              size: 18, color: Colors.white70),
+                          label: Text(
+                            "Reset Filters",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            backgroundColor: Colors.white.withOpacity(0.1),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
                       ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        backgroundColor: Colors.white.withOpacity(0.1),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
+                    if (hasActiveFilters) const SizedBox(width: 12),
+                    // Download PDF Button
+                    StreamBuilder<QuerySnapshot>(
+                      stream: getAttendanceStream(selectedDate, selectedBus),
+                      builder: (context, snapshot) {
+                        final allDocs = snapshot.data?.docs ?? [];
+                        final filteredDocs =
+                            selectedUser == null || selectedUser == 'All Users'
+                                ? allDocs
+                                : allDocs.where((doc) {
+                                    final name = (doc.data() as Map)['name']
+                                            ?.toString() ??
+                                        '';
+                                    return name == selectedUser;
+                                  }).toList();
+
+                        return ElevatedButton.icon(
+                          onPressed: filteredDocs.isEmpty
+                              ? null
+                              : () =>
+                                  _downloadAttendancePDF(snapshot.data!.docs),
+                          icon: const Icon(Icons.download_outlined,
+                              color: Colors.red),
+                          label: const Text(
+                            "Download PDF",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            disabledBackgroundColor:
+                                Colors.white.withOpacity(0.5),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                          ),
+                        );
+                      },
                     ),
-                  ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -304,12 +656,14 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                 }
 
                 final allDocs = snapshot.data!.docs;
-                final filteredDocs = selectedUser == null || selectedUser == 'All Users'
-                    ? allDocs
-                    : allDocs.where((doc) {
-                        final name = (doc.data() as Map)['name']?.toString() ?? '';
-                        return name == selectedUser;
-                      }).toList();
+                final filteredDocs =
+                    selectedUser == null || selectedUser == 'All Users'
+                        ? allDocs
+                        : allDocs.where((doc) {
+                            final name =
+                                (doc.data() as Map)['name']?.toString() ?? '';
+                            return name == selectedUser;
+                          }).toList();
 
                 filteredDocs.sort((a, b) {
                   final aTime = (a.data() as Map)['time']?.toString() ?? '';
@@ -321,7 +675,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                   return _buildEmptyOrErrorState(
                     icon: Icons.receipt_long_outlined,
                     message: 'No records match your filters.',
-                    subMessage: 'Try adjusting the date, bus, or user selections.',
+                    subMessage:
+                        'Try adjusting the date, bus, or user selections.',
                     iconColor: Colors.grey[300]!,
                   );
                 }
@@ -329,7 +684,8 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 12.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -341,14 +697,16 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                               fontSize: 14,
                             ),
                           ),
-                          if (selectedUser != null && selectedUser != 'All Users')
+                          if (selectedUser != null &&
+                              selectedUser != 'All Users')
                             TextButton.icon(
                               onPressed: () {
                                 setState(() {
                                   selectedUser = null;
                                 });
                               },
-                              icon: Icon(Icons.person_remove_outlined, size: 16, color: Colors.grey[500]),
+                              icon: Icon(Icons.person_remove_outlined,
+                                  size: 16, color: Colors.grey[500]),
                               label: Text(
                                 "Clear User Filter",
                                 style: TextStyle(color: Colors.grey[500]),
@@ -358,7 +716,7 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                       ),
                     ),
                     Expanded(
-                      child: Scrollbar( // Added scrollbar
+                      child: Scrollbar(
                         thumbVisibility: true,
                         trackVisibility: true,
                         child: SingleChildScrollView(
@@ -367,8 +725,10 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12.0),
                             child: DataTable(
-                              headingRowColor: WidgetStateProperty.all(Colors.grey[100]), // Lighter header for table
-                              dataRowColor: WidgetStateProperty.resolveWith<Color?>(
+                              headingRowColor:
+                                  WidgetStateProperty.all(Colors.grey[100]),
+                              dataRowColor:
+                                  WidgetStateProperty.resolveWith<Color?>(
                                 (Set<WidgetState> states) {
                                   if (states.contains(WidgetState.selected)) {
                                     return Colors.red.withOpacity(0.1);
@@ -380,55 +740,71 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                                 color: Colors.grey.shade300,
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
-                              columnSpacing: 40, // More spacing
-                              dataRowHeight: 55, // Taller rows
+                              columnSpacing: 40,
+                              dataRowHeight: 55,
                               columns: const [
                                 DataColumn(
                                   label: Text(
                                     "Name",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
                                     "Phone",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
                                     "Field",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
                                     "Semester",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
                                     "Bus",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
                                     "Stop",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
                                     "Time",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
                                     "Date",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87),
                                   ),
                                 ),
                               ],
@@ -439,24 +815,33 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
 
                                 return DataRow(
                                   color: WidgetStateProperty.all(
-                                    index % 2 == 0 ? Colors.white : Colors.grey[50],
+                                    index % 2 == 0
+                                        ? Colors.white
+                                        : Colors.grey[50],
                                   ),
                                   cells: [
                                     DataCell(
                                       Text(
                                         data['name']?.toString() ?? 'N/A',
-                                        style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87),
                                       ),
                                     ),
-                                    DataCell(Text(data['phone']?.toString() ?? 'N/A')),
-                                    DataCell(Text(data['field']?.toString() ?? 'N/A')),
-                                    DataCell(Text(data['sem']?.toString() ?? 'N/A')),
+                                    DataCell(Text(
+                                        data['phone']?.toString() ?? 'N/A')),
+                                    DataCell(Text(
+                                        data['field']?.toString() ?? 'N/A')),
+                                    DataCell(
+                                        Text(data['sem']?.toString() ?? 'N/A')),
                                     DataCell(
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
                                           color: Colors.red[100],
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         child: Text(
                                           data['bus']?.toString() ?? 'N/A',
@@ -468,14 +853,18 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
                                         ),
                                       ),
                                     ),
-                                    DataCell(Text(data['stop']?.toString() ?? 'N/A')),
+                                    DataCell(Text(
+                                        data['stop']?.toString() ?? 'N/A')),
                                     DataCell(
                                       Text(
                                         data['time']?.toString() ?? 'N/A',
-                                        style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blueGrey),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.blueGrey),
                                       ),
                                     ),
-                                    DataCell(Text(data['date']?.toString() ?? 'N/A')),
+                                    DataCell(Text(
+                                        data['date']?.toString() ?? 'N/A')),
                                   ],
                                 );
                               }).toList(),
@@ -508,20 +897,22 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15), // Translucent white for filters
+        color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(10.0),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5), // Subtle white border
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          hint: Text(hint, style: TextStyle(color: textColor?.withOpacity(0.8) ?? Colors.white70)),
+          hint: Text(hint,
+              style: TextStyle(
+                  color: textColor?.withOpacity(0.8) ?? Colors.white70)),
           value: value,
           isExpanded: true,
           icon: Icon(Icons.arrow_drop_down, color: iconColor ?? Colors.white70),
           onChanged: onChanged,
           items: items,
           style: TextStyle(color: textColor ?? Colors.white, fontSize: 15),
-          dropdownColor: dropdownColor ?? Colors.red[700], // Background of the dropdown menu
+          dropdownColor: dropdownColor ?? Colors.red[700],
         ),
       ),
     );
@@ -544,7 +935,10 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.grey[700]),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700]),
             ),
             const SizedBox(height: 8),
             Text(
