@@ -75,50 +75,80 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
       body: Padding(
         padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment
+                .stretch, // To make the text field lines stretch
+            children: [
+              // Add the logo here
+              Image.asset(
+                'assets/logo1.png', // Path to your logo image
+                height: 200, // Adjust height as needed
+                width: 350, // Adjust width as needed
+              ),
+              SizedBox(height: 30), // Add some space after the logo
+              // Add a "Login" heading with styling
+              Text(
+                "Login",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 255, 2, 2),
+                ),
+              ),
+              SizedBox(height: 50), // Add some space after the heading
+              TextField(
                 controller: emailCtrl,
-                decoration: InputDecoration(labelText: "Email")),
-            TextField(
+                decoration: InputDecoration(labelText: "Email"),
+              ),
+              TextField(
                 controller: passCtrl,
                 decoration: InputDecoration(labelText: "Password"),
-                obscureText: true),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => login(context),
-              child: Text("Login"),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.red),
-                foregroundColor: WidgetStateProperty.all(Colors.white),
+                obscureText: true,
               ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Don't have an account? "),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => RegisterPage()),
-                    );
-                  },
-                  child: Text(
-                    "Register here",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => login(context),
+                child: Text("Login"),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Colors.red),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(30.0), // Rounded corners for the button
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Don't have an account? "),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => RegisterPage()),
+                      );
+                    },
+                    child: Text(
+                      "Register here",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
