@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'admin_attendance_page.dart';
 import 'admin_user_management_page.dart';
@@ -29,7 +30,8 @@ class AdminHomePage extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
               sliver: SliverList(
                 delegate: SliverChildListDelegate(
                   [
@@ -54,26 +56,30 @@ class AdminHomePage extends StatelessWidget {
                       context,
                       icon: Icons.group_add_outlined, // More specific icon
                       title: "User Management",
-                      description: "Create, update, and deactivate user accounts.",
+                      description:
+                          "Create, update, and deactivate user accounts.",
                       color: const Color(0xFF1ABC9C), // Teal green
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const AdminUserManagementPage()),
+                          MaterialPageRoute(
+                              builder: (_) => const AdminUserManagementPage()),
                         );
                       },
                     ),
                     const SizedBox(height: 20),
                     _buildFeatureTile(
                       context,
-                      icon: Icons.event_note_outlined, // Specific attendance icon
+                      icon:
+                          Icons.event_note_outlined, // Specific attendance icon
                       title: "Attendance Records",
                       description: "Access and review daily attendance logs.",
                       color: const Color(0xFF3498DB), // Sky blue
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const AdminAttendancePage()),
+                          MaterialPageRoute(
+                              builder: (_) => const AdminAttendancePage()),
                         );
                       },
                     ),
@@ -81,7 +87,7 @@ class AdminHomePage extends StatelessWidget {
                     const SizedBox(height: 40),
                     Center(
                       child: Text(
-                        "© 2025 [Your Company Name]", // Footer for professionalism
+                        "© 2025 RBA", // Footer for professionalism
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 12,
@@ -122,7 +128,10 @@ class AdminHomePage extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white, // Solid white background for the card
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.2), width: 1.5), // Subtle border
+            border: Border.all(
+                // ignore: deprecated_member_use
+                color: color.withOpacity(0.2),
+                width: 1.5), // Subtle border
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
