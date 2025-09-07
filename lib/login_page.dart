@@ -6,7 +6,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatelessWidget {
+// Converted to a StatefulWidget
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
 
@@ -16,11 +24,21 @@ class LoginPage extends StatelessWidget {
     {"email": "agherabansi10@gmail.com", "password": "bansi4040"},
     {"email": "birjutimbadiya24@gmail.com", "password": "birju@1401"},
     {"email": "vallabhbhai@gmail.com", "password": "vallabh@1066"},
-
     // Add more fixed admin accounts here as needed
   ];
 
-  void login(BuildContext context) async {
+  // Dispose controllers to prevent memory leaks
+  @override
+  void dispose() {
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    super.dispose();
+  }
+
+  void login() async {
+    // Check if the widget is still mounted before proceeding
+    if (!mounted) return;
+
     final email = emailCtrl.text.trim();
     final pass = passCtrl.text.trim();
 
@@ -43,9 +61,10 @@ class LoginPage extends StatelessWidget {
 
       if (isAdmin) {
         // If it's a hardcoded admin, navigate to AdminHomePage directly
+        // The mounted check is implicitly handled by Navigator if context is valid here
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => AdminHomePage()),
+          MaterialPageRoute(builder: (_) => const AdminHomePage()),
         );
         return; // Stop further execution
       }
@@ -53,6 +72,9 @@ class LoginPage extends StatelessWidget {
       // If not a hardcoded admin, proceed with Firebase login for regular users
       UserCredential userCred = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pass);
+
+      // ADDED: Check if mounted after await
+      if (!mounted) return;
 
       final user = userCred.user;
       if (user == null) {
@@ -67,6 +89,9 @@ class LoginPage extends StatelessWidget {
           .collection("users")
           .doc(user.uid)
           .get();
+      
+      // ADDED: Check if mounted after await
+      if (!mounted) return;
 
       if (!userDoc.exists) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,15 +108,21 @@ class LoginPage extends StatelessWidget {
           "${userData['name']},${userData['phone']},${userData['city']},${userData['bus']},${userData['stop']}";
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      
+      // ADDED: Check if mounted after await
+      if (!mounted) return;
+
       prefs.setString("user", userString);
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => HomePage(),
+          builder: (_) => const HomePage(),
         ),
       );
     } on FirebaseAuthException catch (e) {
+      // ADDED: Check if mounted before showing SnackBar in catch block
+      if (!mounted) return;
       String message;
       if (e.code == 'user-not-found') {
         message = 'No user found for that email.';
@@ -106,6 +137,8 @@ class LoginPage extends StatelessWidget {
         SnackBar(content: Text(message)),
       );
     } catch (e) {
+      // ADDED: Check if mounted before showing SnackBar in catch block
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text("An unexpected error occurred: ${e.toString()}")),
@@ -125,16 +158,12 @@ class LoginPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-
-              // Logo section
               Image.asset(
                 'assets/logo1.png',
                 height: 180,
                 width: 300,
               ),
               const SizedBox(height: 40),
-
-              // "Welcome Back!" heading
               Text(
                 "Welcome Back!",
                 textAlign: TextAlign.center,
@@ -154,8 +183,6 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 50),
-
-              // Email TextField
               _buildInputField(
                 controller: emailCtrl,
                 labelText: "Email Address",
@@ -163,8 +190,6 @@ class LoginPage extends StatelessWidget {
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 20),
-
-              // Password TextField
               _buildInputField(
                 controller: passCtrl,
                 labelText: "Password",
@@ -172,10 +197,8 @@ class LoginPage extends StatelessWidget {
                 obscureText: true,
               ),
               const SizedBox(height: 30),
-
-              // Login Button
               ElevatedButton(
-                onPressed: () => login(context),
+                onPressed: login, // Changed to call the method directly
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red[700],
                   foregroundColor: Colors.white,
@@ -195,8 +218,6 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
-
-              // Registration prompt
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -274,7 +295,7 @@ class LoginPage extends StatelessWidget {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Colors.transparent, width: 0),
+            borderSide: const BorderSide(color: Colors.transparent, width: 0),
           ),
         ),
       ),
